@@ -1,0 +1,43 @@
+title: "Question"
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Ask a question
+      description: Please provide a detailed explanation of your objectives and any challenges you are encountering in reaching these goals
+      value: "How can I create a new REST service to get data from Postgres database"
+    validations:
+      required: true
+  - type: dropdown
+    id: variant
+    attributes:
+      label: Variant
+      description: What Karavan variant are you running?
+      options:
+        - Web Application
+        - Vs Code Extension
+  - type: dropdown
+    id: container
+    attributes:
+      label: Container Management (if applicable)
+      description: What Container Management System are you running?
+      options:
+        - Docker
+        - Kubernetes
+        - Openshift
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System (if applicable)
+      description: What Operating System are you running?
+      options:
+        - Linux
+        - MacOS
+        - Windows
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: What Karavan version are you running?
+      options:
+        - 4.8.0

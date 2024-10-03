@@ -1,0 +1,27 @@
+.pf-v5-c-modal-box .text-field-with-prefix {
+    gap: 0;
+}
+
+.pf-v5-c-modal-box .text-field-with-prefix .text-field-prefix {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.pf-v5-c-modal-box .text-field-with-prefix .pf-v5-c-text-input-group__text-input {
+    padding-left: 0;
+}
+
+.pf-v5-c-modal-box .text-field-with-suffix .text-field-suffix {
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.form-util-text-field {
+    width: 100%;
+}
+.form-util-text-field-suffix,
+.form-util-text-field-suffix input {
+    width: 150px
+}

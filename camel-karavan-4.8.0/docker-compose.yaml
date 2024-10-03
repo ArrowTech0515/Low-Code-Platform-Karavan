@@ -1,0 +1,33 @@
+name: karavan
+
+services:
+
+  karavan:
+    container_name: karavan
+    image: ghcr.io/apache/camel-karavan:4.8.0
+    ports:
+      - "8080:8080"
+    environment:
+      - KARAVAN_GIT_BRANCH=main
+      - KARAVAN_DOCKER_NETWORK=karavan
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"    
+    labels:
+      - "org.apache.camel.karavan/type=internal"    
+    networks:
+      - karavan
+
+  registry:
+    container_name: registry
+    image: registry:2
+    restart: always
+    ports:
+      - "5555:5000"
+    labels:
+      - "org.apache.camel.karavan/type=internal"  
+    networks:
+      - karavan  
+
+networks:
+  karavan:
+    external: true

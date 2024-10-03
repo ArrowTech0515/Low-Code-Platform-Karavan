@@ -1,0 +1,70 @@
+name: VS Code extension
+
+on:
+  push:
+    branches: [ main ]
+    paths: ['karavan-vscode/**', 'karavan-core/**', 'karavan-designer/**', '.github/workflows/vscode.yml']
+  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
+
+env:
+  TAG: 4.8.0
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      #  Generate Karavan UI model and API, Kamelets and Components
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: adopt
+          java-version: 17
+
+      - name: Cache local Maven repository
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/org/apache/camel/karavan
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: Generate Karavan UI model and API, Kamelets and Components
+        run: mvn clean package -f karavan-generator && java -jar karavan-generator/target/karavan-generator-${{ env.TAG }}.jar
+
+      #  Building Karavan Core
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Karavan Core install
+        working-directory: ./karavan-core
+        run: npm install
+
+      #  Building Karavan VSCode extensions
+      - name: Karavan VS Code extension (install dependencies)
+        working-directory: ./karavan-vscode  
+        run: npm update && npm install 
+
+      - name: Karavan VS Code extension (install vsce)
+        working-directory: ./karavan-vscode
+        run: npm install -g @vscode/vsce
+
+      - name: Karavan VS Code extension (package)
+        working-directory: ./karavan-vscode
+        run: vsce package
+
+      - name: Karavan VS Code extension (upload)
+        uses: actions/upload-artifact@v4
+        with:
+          name: camel-karavan-vscode.vsix
+          path: ./karavan-vscode/*.vsix
+        if: ${{ github.ref == 'refs/heads/main' }}
