@@ -26,7 +26,30 @@ export default defineConfig({
     server: {
         // this ensures that the browser opens upon server start
         open: true,
+        host: '127.0.0.1',
         // this sets a default port to 3000, you can change this
         port: 3003,
+        cors: {
+            origin: '*', // Allows requests from any origin
+            methods: ['GET', 'POST'], // Specifies allowed HTTP methods
+            credentials: true // If you're using cookies or credentials
+        },
+        proxy: {
+            '/public': {
+                target: 'http://127.0.0.1:8080',
+                changeOrigin: true,
+                secure: false,
+            },
+            '/ui': {
+                target: 'http://127.0.0.1:8080',
+                changeOrigin: true,
+                secure: false,
+            },
+            '/user': {
+                target: 'http://127.0.0.1:8080',
+                changeOrigin: true,
+                secure: false,
+            },
+        }
     }
 })

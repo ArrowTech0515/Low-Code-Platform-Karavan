@@ -36,7 +36,7 @@ export function MainRoutes() {
             <Route path="/containers" element={<ContainersPage key="services"/>}/>
             <Route path="/knowledgebase" element={<KnowledgebaseWrapper dark={false}/>}/>
             <Route path="/configuration" element={<ConfigurationPage dark={false}/>}/>
-            <Route path="*" element={<Navigate to="/projects" replace/>}/>
+            <Route path="*" element={<Navigate to="/aptean/projects" replace/>}/>
         </Routes>
     )
 }

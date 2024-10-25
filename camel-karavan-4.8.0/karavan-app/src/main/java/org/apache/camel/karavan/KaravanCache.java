@@ -22,6 +22,7 @@ import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.apache.camel.karavan.model.*;
+import org.jboss.logging.Logger;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import static org.apache.camel.karavan.KaravanEvents.*;
 @Default
 @Singleton
 public class KaravanCache {
+    private static final Logger LOGGER = Logger.getLogger(KaravanCache.class.getName());
 
     private final Map<String, Project> projects = new ConcurrentHashMap<>();
     private final Map<String, ProjectFile> files = new ConcurrentHashMap<>();
@@ -106,6 +108,8 @@ public class KaravanCache {
         if (!startup) {
             eventBus.publish(PROJECT_SAVED, JsonObject.mapFrom(project));
         }
+
+        this.save();
     }
 
     public List<ProjectFile> getProjectFiles(String projectId) {
@@ -135,6 +139,7 @@ public class KaravanCache {
         if (commited) {
             filesCommited.put(GroupedKey.create(file.getProjectId(), DEV, file.getName()), file);
         }
+        this.save();
     }
 
     public void syncFilesCommited(String projectId, List<String> fileNames) {
@@ -154,6 +159,7 @@ public class KaravanCache {
         if (!startup) {
             files.forEach((s, file) -> eventBus.publish(PROJECT_FILE_SAVED, JsonObject.mapFrom(file)));
         }
+        this.save();
     }
 
     public void deleteProjectFile(String projectId, String filename, boolean startup) {
@@ -162,6 +168,7 @@ public class KaravanCache {
         if (!startup) {
             eventBus.publish(PROJECT_FILE_DELETED, JsonObject.mapFrom(key));
         }
+        this.save();
     }
 
     public List<ProjectFile> getProjectFilesCommited(String projectId) {
@@ -175,10 +182,12 @@ public class KaravanCache {
 
     public void deleteProjectFileCommited(String projectId, String filename) {
         filesCommited.remove(GroupedKey.create(projectId, DEV, filename));
+        this.save();
     }
 
     public void saveProjectFileCommited(ProjectFile file) {
         filesCommited.put(GroupedKey.create(file.getProjectId(), DEV, file.getName()), file);
+        this.save();
     }
 
     public void deleteProject(String projectId, boolean startup) {
@@ -187,6 +196,7 @@ public class KaravanCache {
         if (!startup) {
             eventBus.publish(PROJECT_DELETED, JsonObject.mapFrom(key));
         }
+        this.save();
     }
 
     public Project getProject(String projectId) {
@@ -199,10 +209,12 @@ public class KaravanCache {
 
     public void saveDeploymentStatus(DeploymentStatus status) {
         deploymentStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()), status);
+        this.save();
     }
 
     public void deleteDeploymentStatus(DeploymentStatus status) {
         deploymentStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()));
+        this.save();
     }
 
     public List<DeploymentStatus> getDeploymentStatuses() {
@@ -215,14 +227,17 @@ public class KaravanCache {
 
     public void deleteAllDeploymentsStatuses() {
         deploymentStatuses.clear();
+        this.save();
     }
 
     public void saveServiceStatus(ServiceStatus status) {
         serviceStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()), status);
+        this.save();
     }
 
     public void deleteServiceStatus(ServiceStatus status) {
         serviceStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getProjectId()));
+        this.save();
     }
 
     public List<ServiceStatus> getServiceStatuses() {
@@ -239,6 +254,7 @@ public class KaravanCache {
 
     public void setTransit(String projectId, String env, String containerName) {
         transits.put(GroupedKey.create(projectId, env, containerName), true);
+        this.save();
     }
 
     public List<PodContainerStatus> getPodContainerStatuses() {
@@ -271,18 +287,22 @@ public class KaravanCache {
 
     public void savePodContainerStatus(PodContainerStatus status) {
         podContainerStatuses.put(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getContainerName()), status);
+        this.save();
     }
 
     public void deletePodContainerStatus(PodContainerStatus status) {
         podContainerStatuses.remove(GroupedKey.create(status.getProjectId(), status.getEnv(), status.getContainerName()));
+        this.save();
     }
 
     public void deleteAllPodContainersStatuses() {
         podContainerStatuses.clear();
+        this.save();
     }
 
     public void deletePodContainerStatus(String projectId, String env, String containerName) {
         podContainerStatuses.remove(GroupedKey.create(projectId, env, containerName));
+        this.save();
     }
 
     public CamelStatus getCamelStatus(String projectId, String env, String containerName) {
@@ -308,11 +328,14 @@ public class KaravanCache {
     public void saveCamelStatus(CamelStatus status) {
         var key = GroupedKey.create(status.getProjectId(), status.getEnv(), status.getContainerName());
         camelStatuses.put(key, status);
+
+        this.save();
     }
 
     public void deleteCamelStatus(String projectId, String name, String env) {
         var key = GroupedKey.create(projectId, env, name);
         camelStatuses.remove(key);
+        this.save();
     }
 
     public void deleteCamelStatuses(String projectId, String env) {
@@ -321,10 +344,12 @@ public class KaravanCache {
                     var key = GroupedKey.create(projectId, env, s.getContainerName());
                     camelStatuses.remove(key);
                 });
+        this.save();
     }
 
     public void deleteAllCamelStatuses() {
         camelStatuses.clear();
+        this.save();
     }
 
     public List<PodContainerStatus> getLoadedDevModeStatuses() {
@@ -343,5 +368,10 @@ public class KaravanCache {
         deploymentStatuses.clear();
         podContainerStatuses.clear();
         camelStatuses.clear();
+        this.save();
+    }
+
+    private void save() {
+
     }
 }
